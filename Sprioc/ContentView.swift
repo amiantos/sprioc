@@ -20,6 +20,9 @@ struct TodoDetail: View {
 }
 
 struct TodoItem: View {
+    @State private var showingSheet = false
+    @State private var showingDetail: Bool = false
+    @State private var todoName: String = ""
     var todo: Todo
     var body: some View {
             HStack {
@@ -30,20 +33,25 @@ struct TodoItem: View {
                     }
                 }) {
                     Image(systemName: todo.complete ? "checkmark.circle" : "circle")
-                }
+                }.buttonStyle(.borderless)
                 VStack {
                     HStack {
-                        if todo.complete {
-                            Text(todo.name).strikethrough()
+                        if showingDetail {
+                            TextField("Name", text: $todoName)
                         } else {
                             Text(todo.name)
                         }
                         Spacer()
                         Button(action: {
-                            //todo.complete.toggle()
+                            showingSheet.toggle()
                         }) {
                             Image(systemName: "info.circle")
                         }
+                            .buttonStyle(.borderless)
+                            .sheet(isPresented: $showingSheet) {
+                                TodoDetail(text: todo.name)
+                            }
+                            .opacity(showingDetail ? 1 : 0)
                     }
                     if let date = todo.dueDate {
                         HStack {
@@ -51,6 +59,9 @@ struct TodoItem: View {
                             Spacer()
                         }
                     }
+                }.background().onTapGesture {
+                    todoName = todo.name
+                    showingDetail.toggle()
                 }
 
             }
@@ -63,6 +74,7 @@ struct ContentView: View {
 
     @State private var showingAlert = false
     @State private var name = ""
+
 
     var body: some View {
         NavigationStack {
